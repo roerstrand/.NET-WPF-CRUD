@@ -18,7 +18,8 @@ namespace OPG_Robin_Strandberg_SYSM9
         private string _inputUsername;
         private string _inputNewPassword;
         private string _inputConfirmPassword;
-        private string _lastFourPreviousPassword;
+        private string _secretAnswer;
+        private string _secretQuestion = "Enter your username to see your security question";
         private int _attempts;
         private bool _canSubmit = true;
 
@@ -29,7 +30,14 @@ namespace OPG_Robin_Strandberg_SYSM9
             {
                 _inputUsername = value;
                 OnPropertyChanged();
+                UpdateSecretQuestion();
             }
+        }
+
+        private void UpdateSecretQuestion()
+        {
+            var user = _userManager.FindUser(InputUsername);
+            SecretQuestion = user?.SecretQuestion ?? "Enter your username to see your security question";
         }
 
         public string InputNewPassword
@@ -52,12 +60,22 @@ namespace OPG_Robin_Strandberg_SYSM9
             }
         }
 
-        public string LastFourPreviousPassword
+        public string SecretQuestion
         {
-            get => _lastFourPreviousPassword;
+            get => _secretQuestion;
             set
             {
-                _lastFourPreviousPassword = value;
+                _secretQuestion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SecretAnswer
+        {
+            get => _secretAnswer;
+            set
+            {
+                _secretAnswer = value;
                 OnPropertyChanged();
             }
         }
@@ -90,7 +108,7 @@ namespace OPG_Robin_Strandberg_SYSM9
 
         public ForgotPasswordViewModel()
         {
-            // App.UserManager global objektinstans tilldelas i konstruktorn app.xaml vid kompilering app-klass
+            // App.UserManager is a global singleton initialized in App.xaml.cs on startup
             _userManager = App.UserManager;
 
             SubmitCommand = new RelayCommand(o => ValidatePriorPasswordChange());
@@ -108,9 +126,14 @@ namespace OPG_Robin_Strandberg_SYSM9
                     return;
                 }
 
-                var lastFour = user.Password.Substring(user.Password.Length - 4).Trim();
+                if (string.IsNullOrWhiteSpace(user.SecretAnswer))
+                {
+                    MessageBox.Show("This account has no secret question set. Contact support.",
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-                if (lastFour != LastFourPreviousPassword)
+                if (!(SecretAnswer ?? string.Empty).Trim().Equals(user.SecretAnswer, StringComparison.OrdinalIgnoreCase))
                 {
                     Attempts++;
                     if (Attempts >= 3)
@@ -122,7 +145,7 @@ namespace OPG_Robin_Strandberg_SYSM9
                     }
 
                     int remaining = 3 - Attempts;
-                    MessageBox.Show($"Security check failed. {remaining} attempts remaining.",
+                    MessageBox.Show($"Incorrect answer. {remaining} attempts remaining.",
                         "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -133,7 +156,7 @@ namespace OPG_Robin_Strandberg_SYSM9
                     return;
                 }
 
-                // Stark validering (samma som vid registrering)
+                // Strong password validation (same rules as registration)
                 string pattern = @"^(?=.*\d)(?=.*[!@#$%^&*(),.?""':{}|<>])[A-Za-z\d!@#$%^&*(),.?""':{}|<>]{8,}$";
                 if (!Regex.IsMatch(InputNewPassword, pattern))
                 {

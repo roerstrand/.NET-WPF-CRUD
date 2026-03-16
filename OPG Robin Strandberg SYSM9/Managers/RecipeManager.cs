@@ -5,12 +5,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using OPG_Robin_Strandberg_SYSM9.Data;
 using OPG_Robin_Strandberg_SYSM9.Models;
 
 namespace OPG_Robin_Strandberg_SYSM9.Managers
 {
     public class RecipeManager : INotifyPropertyChanged
     {
+        private readonly CookMasterDbContext _db;
         private ObservableCollection<Recipe> _recipes;
 
         public ObservableCollection<Recipe> RecipeList
@@ -23,8 +25,9 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
             }
         }
 
-        public RecipeManager(User user)
+        public RecipeManager(User user, CookMasterDbContext db)
         {
+            _db = db;
             RecipeList = user?.RecipeList ?? new ObservableCollection<Recipe>();
         }
 
@@ -48,6 +51,8 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                 }
 
                 RecipeList.Add(recipe);
+                _db.Recipes.Add(recipe);
+                _db.SaveChanges();
                 OnPropertyChanged(nameof(RecipeList));
                 MessageBox.Show($"Recipe \"{recipe.Title}\" was successfully added!", "Success", MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -76,6 +81,8 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                 }
 
                 RecipeList.Remove(recipe);
+                _db.Recipes.Remove(recipe);
+                _db.SaveChanges();
                 OnPropertyChanged(nameof(RecipeList));
                 MessageBox.Show($"Recipe \"{recipe.Title}\" was removed.", "Removed", MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -137,7 +144,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                     return new ObservableCollection<Recipe>(RecipeList);
                 }
 
-                // Where villkor likt SQL som behöver uppfyllas
+                // Filter conditions (similar to SQL WHERE)
                 return new ObservableCollection<Recipe>(
                     RecipeList.Where(r => r.CreatedBy?.UserName == currentUser.UserName)
                 );
@@ -163,7 +170,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                     if (user.RecipeList == null)
                         continue;
 
-                    foreach (var recipe in user.RecipeList.ToList()) // kopierar aktuell lista
+                    foreach (var recipe in user.RecipeList.ToList()) // copy current list to avoid mutation during iteration
                     {
                         if (!allRecipes.Contains(recipe))
                             allRecipes.Add(recipe);
@@ -214,7 +221,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
             }
         }
 
-        // Skapad metod enligt ULM men för närvarande används modell-metod
+        // Method created per UML but currently the model method is used instead
         public void UpdateRecipe(Recipe recipe, string title, string instructions, string category, string ingredients)
         {
             try
@@ -262,6 +269,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
 
                 recipe.Ingredients = ingredientsList;
 
+                _db.SaveChanges();
                 OnPropertyChanged(nameof(RecipeList));
                 MessageBox.Show($"Recipe \"{recipe.Title}\" was updated successfully.", "Success", MessageBoxButton.OK,
                     MessageBoxImage.Information);

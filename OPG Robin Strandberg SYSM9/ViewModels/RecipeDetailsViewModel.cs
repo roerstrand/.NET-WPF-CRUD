@@ -44,7 +44,7 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
             }
         }
 
-        // Toggle bool egenskap för låsta/upplåsta inputfält
+        // Inverted IsEditing — controls whether input fields are read-only
         public bool IsReadOnly => !IsEditing;
 
         public string EditButtonText
@@ -72,7 +72,7 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
             get => string.Join(", ", Recipe.Ingredients);
             set
             {
-                // select likt javascript map, väljer varje element och mappar om det till trimmat element. Sedan tolist.
+                // Split by comma and trim each element, then convert to list (similar to Array.map in JavaScript)
                 Recipe.Ingredients = value.Split(',').Select(i => i.Trim()).ToList();
                 OnPropertyChanged();
             }

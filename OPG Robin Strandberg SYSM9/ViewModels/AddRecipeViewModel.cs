@@ -69,6 +69,23 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
             }
         }
 
+        public List<string> Categories { get; } = new List<string>
+        {
+            "Breakfast",
+            "Lunch",
+            "Dinner",
+            "Dessert",
+            "Snack",
+            "Drink",
+            "Soup",
+            "Salad",
+            "Appetizer",
+            "Side Dish",
+            "Baking",
+            "Vegetarian",
+            "Seafood"
+        };
+
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 

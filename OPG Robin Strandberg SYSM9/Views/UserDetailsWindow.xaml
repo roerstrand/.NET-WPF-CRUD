@@ -1,58 +1,90 @@
-﻿<Window x:Class="OPG_Robin_Strandberg_SYSM9.Views.UserDetailsWindow"
+<Window x:Class="OPG_Robin_Strandberg_SYSM9.Views.UserDetailsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Width="1000"
         Height="1000"
         Title="User Details"
-        Background="{StaticResource AppBackground}">
+        Background="{StaticResource AppBackground}"
+        TextElement.FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto">
 
     <Grid>
-        <!-- Viewbox för responsivitet på olika skärmstorlekar. Stretch down only för att enbart skala ned för små skärmas,
-        ej skala upp så komponenter/knappar etc blir för stora vid större skärmar-->
         <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
             <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16">
-
                 <StackPanel>
+
                     <TextBlock Text="CookMaster"
                                Foreground="{StaticResource PrimaryTitle}"
                                FontSize="80"
                                FontWeight="Bold"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,40" />
+                               Margin="0,0,0,32" />
 
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="500">
-                        <TextBlock Text="Current Username:" FontWeight="Bold" />
-                        <TextBlock Text="{Binding CurrentUserName}" />
+                    <!-- User Details Card -->
+                    <materialDesign:Card Padding="40,32" UniformCornerRadius="16" HorizontalAlignment="Center">
+                        <StackPanel Width="320" Orientation="Vertical">
 
-                        <TextBlock Text="Current Country:" FontWeight="Bold" />
-                        <TextBlock Text="{Binding CurrentCountry}" />
+                            <TextBlock Text="Account Details"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,20" />
 
-                        <Separator Margin="8 16" />
+                            <!-- Current info display -->
+                            <materialDesign:Card Background="#F9F5F1" UniformCornerRadius="8" Padding="16,12" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="Current Username"
+                                               FontSize="11"
+                                               Foreground="#888"
+                                               Margin="0,0,0,2" />
+                                    <TextBlock Text="{Binding CurrentUserName}"
+                                               FontSize="15"
+                                               FontWeight="SemiBold"
+                                               Margin="0,0,0,8" />
+                                    <TextBlock Text="Current Country"
+                                               FontSize="11"
+                                               Foreground="#888"
+                                               Margin="0,0,0,2" />
+                                    <TextBlock Text="{Binding CurrentCountry}"
+                                               FontSize="15"
+                                               FontWeight="SemiBold"
+                                               Margin="0" />
+                                </StackPanel>
+                            </materialDesign:Card>
 
-                        <TextBlock Text="New Username:" />
-                        <TextBox Text="{Binding NewUserName, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="New Username" />
+                            <TextBox Text="{Binding NewUserName, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Leave blank to keep current" />
 
-                        <TextBlock Text="New Password:" />
-                        <PasswordBox x:Name="NewPasswordBox"
-                                     PasswordChanged="PasswordBox1_PasswordChanged" />
+                            <TextBlock Text="New Password" />
+                            <PasswordBox x:Name="NewPasswordBox"
+                                         PasswordChanged="PasswordBox1_PasswordChanged"
+                                         materialDesign:HintAssist.Hint="Leave blank to keep current" />
 
-                        <TextBlock Text="Confirm Password:" />
-                        <PasswordBox x:Name="ConfirmPasswordBox"
-                                     PasswordChanged="PasswordBox2_PasswordChanged" />
+                            <TextBlock Text="Confirm Password" />
+                            <PasswordBox x:Name="ConfirmPasswordBox"
+                                         PasswordChanged="PasswordBox2_PasswordChanged"
+                                         materialDesign:HintAssist.Hint="Repeat new password" />
 
+                            <TextBlock Text="Country" />
+                            <ComboBox ItemsSource="{Binding Countries}"
+                                      SelectedItem="{Binding SelectedCountry}"
+                                      materialDesign:HintAssist.Hint="Select country" />
 
-                        <TextBlock Text="Select Country:" />
-                        <ComboBox ItemsSource="{Binding Countries}" SelectedItem="{Binding SelectedCountry}" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                <Button Content="Save" Command="{Binding SaveCommand}" />
+                                <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource SecondaryButton}" />
+                            </StackPanel>
 
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="8 0 0 0">
-                            <Button Content="Save" Command="{Binding SaveCommand}" />
-                            <Button Content="Cancel" Command="{Binding CancelCommand}" />
                         </StackPanel>
-                    </StackPanel>
+                    </materialDesign:Card>
+
                 </StackPanel>
             </Grid>
         </Viewbox>

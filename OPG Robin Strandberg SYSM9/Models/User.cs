@@ -40,9 +40,20 @@ namespace OPG_Robin_Strandberg_SYSM9.Models
             }
         }
 
+        public int Id { get; private set; }
+
         public ObservableCollection<Recipe> RecipeList { get; set; }
 
+        public string SecretQuestion { get; private set; }
+        public string SecretAnswer { get; private set; }
+
         public virtual bool IsAdmin => false;
+
+        // Required by EF Core to instantiate objects when loading from the database
+        protected User()
+        {
+            RecipeList = new ObservableCollection<Recipe>();
+        }
 
         public User(string userName, string password, string country)
         {
@@ -50,6 +61,12 @@ namespace OPG_Robin_Strandberg_SYSM9.Models
             _password = password;
             _country = country;
             RecipeList = new ObservableCollection<Recipe>();
+        }
+
+        public void SetSecretQuestion(string question, string answer)
+        {
+            SecretQuestion = question?.Trim();
+            SecretAnswer = answer?.Trim();
         }
 
         public virtual bool ValidateLogin(string userName, string password)

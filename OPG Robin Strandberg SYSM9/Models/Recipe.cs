@@ -99,6 +99,14 @@ namespace OPG_Robin_Strandberg_SYSM9.Models
             }
         }
 
+        public int Id { get; private set; }
+
+        // Required by EF Core to instantiate objects when loading from the database
+        protected Recipe()
+        {
+            Ingredients = new List<string>();
+        }
+
         public Recipe(string title, string instructions, string category, DateTime createdAt, User createdBy,
             string ingredients)
         {
@@ -107,7 +115,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Models
             Category = category;
             CreatedAt = createdAt;
             CreatedBy = createdBy;
-            // Select metod för att omvandla split som returnerar array-element utan trim till => trimmade element. Likt map-metod i javascript
+            // Split the ingredients string and trim each element (similar to map in JavaScript)
             Ingredients = ingredients.Split(',').Select(i => i.Trim()).ToList();
         }
 
@@ -125,7 +133,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Models
                     return;
                 }
 
-                // Where-metod villkor/condition metod (likt SQL) som måste uppfyllas
+                // Filter out blank entries (equivalent to SQL WHERE)
                 var ingredientList = ingredients.Split(',')
                     .Select(i => i.Trim())
                     .Where(i => !string.IsNullOrWhiteSpace(i))

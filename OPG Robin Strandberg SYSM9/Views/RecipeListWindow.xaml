@@ -1,31 +1,31 @@
-﻿<Window x:Class="OPG_Robin_Strandberg_SYSM9.Views.RecipeListWindow"
+<Window x:Class="OPG_Robin_Strandberg_SYSM9.Views.RecipeListWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Width="1000"
         Height="1000"
         Title="Recipe List"
-        Background="{StaticResource AppBackground}">
+        Background="{StaticResource AppBackground}"
+        TextElement.FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto">
 
     <Window.Resources>
-        <!-- Inbyggd konverterare i wpf för visning av View all recipes-knapp för admins -->
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid>
-            <!-- Viewbox för responsivitet på olika skärmstorlekar. Stretch down only för att enbart skala ned för små skärmas,
-            ej skala upp så komponenter/knappar etc blir för stora vid större skärmar-->
             <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                 <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40">
-
                     <StackPanel HorizontalAlignment="Center" MaxWidth="900">
 
+                        <!-- Logo -->
                         <Viewbox Width="200" Height="200" HorizontalAlignment="Center" Margin="0,0,0,25">
-                            <!-- Canvas-element (behållare) för barnobjekt (ellipse, rektanglar) som ges exakta koordinater (x, y) för att rita former. Likt SVG-värden. -->
                             <Canvas Width="150" Height="150">
                                 <Ellipse Width="130" Height="130" Canvas.Left="10" Canvas.Top="10">
                                     <Ellipse.Fill>
@@ -38,30 +38,21 @@
                                         <DropShadowEffect Color="#444" BlurRadius="10" ShadowDepth="3" />
                                     </Ellipse.Effect>
                                 </Ellipse>
-
-                                <Rectangle Width="90" Height="30" Canvas.Left="30" Canvas.Top="70"
-                                           RadiusX="6" RadiusY="6">
+                                <Rectangle Width="90" Height="30" Canvas.Left="30" Canvas.Top="70" RadiusX="6" RadiusY="6">
                                     <Rectangle.Fill>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                             <GradientStop Color="#C0782F" Offset="0" />
                                             <GradientStop Color="#9B5510" Offset="1" />
                                         </LinearGradientBrush>
                                     </Rectangle.Fill>
-                                    <Rectangle.Stroke>
-                                        <SolidColorBrush Color="#2F2F2F" />
-                                    </Rectangle.Stroke>
+                                    <Rectangle.Stroke><SolidColorBrush Color="#2F2F2F" /></Rectangle.Stroke>
                                     <Rectangle.StrokeThickness>2</Rectangle.StrokeThickness>
                                 </Rectangle>
-
                                 <Rectangle Width="6" Height="16" Canvas.Left="24" Canvas.Top="75" Fill="#2F2F2F" />
                                 <Rectangle Width="6" Height="16" Canvas.Left="120" Canvas.Top="75" Fill="#2F2F2F" />
-
-                                <Rectangle Width="70" Height="10" Canvas.Left="40" Canvas.Top="58" RadiusX="2"
-                                           RadiusY="2"
-                                           Fill="#2F2F2F" />
+                                <Rectangle Width="70" Height="10" Canvas.Left="40" Canvas.Top="58" RadiusX="2" RadiusY="2" Fill="#2F2F2F" />
                                 <Ellipse Width="16" Height="8" Canvas.Left="67" Canvas.Top="50" Fill="#B5651D" />
-                                <Path Stroke="#FF7F50" StrokeThickness="3" Fill="Transparent"
-                                      Data="M75,50 C68,38 82,35 75,20" />
+                                <Path Stroke="#FF7F50" StrokeThickness="3" Fill="Transparent" Data="M75,50 C68,38 82,35 75,20" />
                             </Canvas>
                         </Viewbox>
 
@@ -70,88 +61,88 @@
                                    FontSize="80"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Center"
-                                   Margin="0,0,0,20" />
+                                   Margin="0,0,0,8" />
 
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Margin="0,0,0,25">
-                            <TextBlock Text="Current User: " FontWeight="Bold" FontSize="16" Margin="0,0,5,0" />
-                            <TextBlock Text="{Binding CurrentUserName}" FontSize="16" />
-                            <TextBlock Text=" (Administrator)" FontWeight="Bold" Foreground="DarkRed" FontSize="16"
+                        <!-- User info -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,24">
+                            <TextBlock Text="Logged in as: " Foreground="#888" Margin="0" />
+                            <TextBlock Text="{Binding CurrentUserName}" FontWeight="SemiBold" Margin="0" />
+                            <TextBlock Text=" (Administrator)"
+                                       FontWeight="Bold"
+                                       Foreground="#C0782F"
+                                       Margin="4,0,0,0"
                                        Visibility="{Binding IsAdminVisible, Converter={StaticResource BoolToVis}}" />
                         </StackPanel>
 
-                        <Grid HorizontalAlignment="Center" Margin="0,0,0,40">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="30" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="30" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                        <!-- Filter Card -->
+                        <materialDesign:Card Padding="24,20" UniformCornerRadius="12" Margin="0,0,0,16">
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
 
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Select Date:" FontWeight="Bold" HorizontalAlignment="Left"
-                                           Margin="0,0,0,5" />
-                                <DatePicker SelectedDate="{Binding SelectedDate}" Width="180" Height="35"
-                                            VerticalAlignment="Bottom" />
-                            </StackPanel>
+                                <DatePicker SelectedDate="{Binding SelectedDate}"
+                                            Width="180" Margin="0,0,16,0" />
 
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Select Category:" FontWeight="Bold" HorizontalAlignment="Left"
-                                           Margin="0,0,0,5" />
                                 <ComboBox ItemsSource="{Binding Categories}"
                                           SelectedItem="{Binding SelectedCategory}"
-                                          Width="180" Height="35" />
+                                          Width="180" Margin="0,0,16,0"
+                                          materialDesign:HintAssist.Hint="Category" />
+
+                                <Button Content="Filter"
+                                        Command="{Binding FilterCommand}"
+                                        Width="120"
+                                        VerticalAlignment="Center"
+                                        Margin="0" />
+
                             </StackPanel>
+                        </materialDesign:Card>
 
-                            <Button Grid.Column="4"
-                                    Content="Filter"
-                                    Command="{Binding FilterCommand}"
-                                    Width="120"
-                                    Height="35"
-                                    VerticalAlignment="Bottom"
-                                    Margin="0, -1"/>
-                        </Grid>
-
-                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,25">
-
-                            <UniformGrid Rows="2" Columns="3" HorizontalAlignment="Center">
-                                <Button Content="Add Recipe" Command="{Binding AddRecipeCommand}" />
-                                <Button Content="Remove Recipe" Command="{Binding RemoveRecipeCommand}" />
-                                <Button Content="Recipe Details" Command="{Binding RecipeDetailsCommand}" />
-
-                                <Button Content="App Info" Command="{Binding InfoCommand}" />
-                                <Button Content="User Details" Command="{Binding ShowUserDetailsCommand}" />
-                                <Button Content="View All Recipes (admin only)"
+                        <!-- Action Buttons Card -->
+                        <materialDesign:Card Padding="20,16" UniformCornerRadius="12" Margin="0,0,0,16">
+                            <StackPanel>
+                                <UniformGrid Rows="2" Columns="3">
+                                    <Button Content="Add Recipe" Command="{Binding AddRecipeCommand}" Margin="6" />
+                                    <Button Content="Remove Recipe" Command="{Binding RemoveRecipeCommand}" Margin="6" Style="{StaticResource SecondaryButton}" />
+                                    <Button Content="Recipe Details" Command="{Binding RecipeDetailsCommand}" Margin="6" />
+                                    <Button Content="App Info" Command="{Binding InfoCommand}" Margin="6" Style="{StaticResource SecondaryButton}" />
+                                    <Button Content="User Details" Command="{Binding ShowUserDetailsCommand}" Margin="6" Style="{StaticResource SecondaryButton}" />
+                                    <Button Content="Log Out" Command="{Binding SignOutCommand}" Margin="6" Style="{StaticResource SecondaryButton}" />
+                                </UniformGrid>
+                                <Button Content="View All (Admin)"
                                         Command="{Binding ShowAllRecipesCommand}"
-                                        Visibility="{Binding IsAdminVisible, Converter={StaticResource BoolToVis}}" />
-                            </UniformGrid>
+                                        Visibility="{Binding IsAdminVisible, Converter={StaticResource BoolToVis}}"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="6,4,6,0" />
+                            </StackPanel>
+                        </materialDesign:Card>
 
-                            <Button Content="Log Out"
-                                    Command="{Binding SignOutCommand}"
-                                    HorizontalAlignment="Center"
-                                    Margin="0,20,0,0" />
-                        </StackPanel>
+                        <!-- Recipe List Card -->
+                        <materialDesign:Card Padding="0" UniformCornerRadius="12" Margin="0,0,0,16">
+                            <ListView ItemsSource="{Binding Recipes}"
+                                      SelectedItem="{Binding SelectedRecipe, Mode=TwoWay}"
+                                      MinHeight="200"
+                                      Height="Auto"
+                                      MaxHeight="400"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                      BorderThickness="0">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="250" />
+                                        <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category}" Width="200" />
+                                        <GridViewColumn Header="Created"
+                                                        DisplayMemberBinding="{Binding CreatedAt, StringFormat={}{0:yyyy-MM-dd HH:mm}}"
+                                                        Width="220" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </materialDesign:Card>
 
-                        <ListView ItemsSource="{Binding Recipes}"
-                                  SelectedItem="{Binding SelectedRecipe, Mode=TwoWay}"
-                                  Margin="0,10,0,0"
-                                  MinHeight="200"
-                                  Height="Auto"
-                                  MaxHeight="400"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="250" />
-                                    <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Category}"
-                                                    Width="250" />
-                                    <GridViewColumn Header="Created"
-                                                    DisplayMemberBinding="{Binding CreatedAt, StringFormat={}{0:yyyy-MM-dd HH:mm}}"
-                                                    Width="250" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                        <TextBlock Text="© 2026 Robin Erik Strandberg"
+                                   FontSize="11"
+                                   Foreground="#AAA"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,8,0,16" />
+
                     </StackPanel>
                 </Grid>
             </Viewbox>

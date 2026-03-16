@@ -23,9 +23,5 @@ namespace OPG_Robin_Strandberg_SYSM9.Views
             _viewModel.InputConfirmNewPassword = ConfirmNewPasswordBox.Password;
         }
 
-        private void LastFourPreviousPassword_OnPasswordChanged(object sender, RoutedEventArgs e)
-        {
-            _viewModel.LastFourPreviousPassword = LastFourPreviousPassword.Password;
-        }
     }
 }

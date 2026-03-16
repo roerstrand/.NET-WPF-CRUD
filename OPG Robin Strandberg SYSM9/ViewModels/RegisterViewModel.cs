@@ -15,8 +15,22 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
         private readonly UserManager _userManager;
         private string _username;
         private string _selectedCountry;
+        private string _selectedSecretQuestion;
+        private string _secretAnswer;
 
         public List<string> Countries { get; }
+
+        public List<string> SecretQuestions { get; } = new List<string>
+        {
+            "What was the name of your first pet?",
+            "What city were you born in?",
+            "What is your mother's maiden name?",
+            "What was the name of your elementary school?",
+            "What is your favorite book?",
+            "What was your childhood nickname?",
+            "What street did you grow up on?",
+            "What is your favorite movie?"
+        };
 
         public string Username
         {
@@ -34,6 +48,26 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
             set
             {
                 _selectedCountry = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SelectedSecretQuestion
+        {
+            get => _selectedSecretQuestion;
+            set
+            {
+                _selectedSecretQuestion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SecretAnswer
+        {
+            get => _secretAnswer;
+            set
+            {
+                _secretAnswer = value;
                 OnPropertyChanged();
             }
         }
@@ -108,7 +142,7 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
                 return;
             }
 
-            bool success = _userManager.Register(Username, password, SelectedCountry);
+            bool success = _userManager.Register(Username, password, SelectedCountry, SelectedSecretQuestion, SecretAnswer);
 
             if (success)
             {

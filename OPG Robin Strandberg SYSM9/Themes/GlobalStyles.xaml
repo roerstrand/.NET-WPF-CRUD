@@ -1,130 +1,83 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
 
-    <!-- Globalt designtema för congruent design i appen. Globala färger likt CSS satta, samt satta värden för de genomgående elementen -->
-    <!-- textblock, textbox, passwordbox, och button med satta värden för förbättrad användarupplevelse -->
-
-    <SolidColorBrush x:Key="AppBackground" Color="#FAEBD7" />
+    <!-- === COLOR VARIABLES === -->
+    <SolidColorBrush x:Key="AppBackground" Color="#F5EFE6" />
     <SolidColorBrush x:Key="PrimaryTitle" Color="#1A1A1A" />
     <SolidColorBrush x:Key="AccentColor" Color="#C0782F" />
-    <SolidColorBrush x:Key="ButtonBackground" Color="#5F7391" />
-    <SolidColorBrush x:Key="ButtonHover" Color="#6E84A6" />
-    <SolidColorBrush x:Key="ButtonPressed" Color="#4A5C74" />
-    <SolidColorBrush x:Key="ButtonText" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AccentColorDark" Color="#9B5510" />
     <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="BorderBrushSoft" Color="#B0A89B" />
+    <SolidColorBrush x:Key="SubtleText" Color="#666666" />
 
+    <!-- === TEXTBLOCK === -->
     <Style TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="Segoe UI Semibold" />
-        <Setter Property="FontSize" Value="16" />
-        <Setter Property="Foreground" Value="#1A1A1A" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="#333333" />
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,6,0,2" />
     </Style>
 
-    <Style TargetType="TextBox">
-        <Setter Property="Width" Value="260" />
-        <Setter Property="MinWidth" Value="180" />
-        <Setter Property="MaxWidth" Value="300" />
-        <Setter Property="MaxHeight" Value="60" />
-        <Setter Property="Margin" Value="0,5,0,15" />
-        <Setter Property="Padding" Value="8" />
+    <!-- === TEXTBOX — Material Design Outlined === -->
+    <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+        <Setter Property="Width" Value="300" />
+        <Setter Property="Margin" Value="0,2,0,12" />
         <Setter Property="FontFamily" Value="Segoe UI" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="Background" Value="{StaticResource CardBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
-        <Setter Property="BorderThickness" Value="1.5" />
-        <Setter Property="SnapsToDevicePixels" Value="True" />
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="3" ShadowDepth="1" Color="#22000000" />
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="TextBox">
-                    <Border Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <ScrollViewer Margin="0" x:Name="PART_ContentHost" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="FontSize" Value="14" />
     </Style>
 
-    <Style TargetType="PasswordBox">
-        <Setter Property="Width" Value="260" />
-        <Setter Property="MinWidth" Value="180" />
-        <Setter Property="MaxWidth" Value="300" />
-        <Setter Property="MaxHeight" Value="60" />
-        <Setter Property="Margin" Value="0,5,0,15" />
-        <Setter Property="Padding" Value="8" />
+    <!-- === PASSWORDBOX — Material Design Outlined === -->
+    <Style TargetType="PasswordBox" BasedOn="{StaticResource MaterialDesignOutlinedPasswordBox}">
+        <Setter Property="Width" Value="300" />
+        <Setter Property="Margin" Value="0,2,0,12" />
         <Setter Property="FontFamily" Value="Segoe UI" />
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="Background" Value="{StaticResource CardBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
-        <Setter Property="BorderThickness" Value="1.5" />
-        <Setter Property="SnapsToDevicePixels" Value="True" />
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="3" ShadowDepth="1" Color="#22000000" />
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="PasswordBox">
-                    <Border Background="{TemplateBinding Background}"
-                            CornerRadius="6"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <ScrollViewer Margin="0" x:Name="PART_ContentHost" />
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="FontSize" Value="14" />
     </Style>
 
-    <Style TargetType="Button">
-        <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
-        <Setter Property="Foreground" Value="{StaticResource ButtonText}" />
+    <!-- === COMBOBOX — Material Design Outlined === -->
+    <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignOutlinedComboBox}">
+        <Setter Property="Width" Value="300" />
+        <Setter Property="Margin" Value="0,2,0,12" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!-- === DATEPICKER — Material Design Outlined === -->
+    <Style TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}">
+        <Setter Property="Width" Value="300" />
+        <Setter Property="Margin" Value="0,2,0,12" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!-- === BUTTON — Material Design Raised, CookMaster-orange === -->
+    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+        <Setter Property="Background" Value="{StaticResource AccentColor}" />
+        <Setter Property="BorderBrush" Value="{StaticResource AccentColor}" />
+        <Setter Property="Foreground" Value="White" />
         <Setter Property="FontFamily" Value="Segoe UI Semibold" />
-        <Setter Property="FontSize" Value="17" />
-        <Setter Property="Height" Value="38" />
-        <Setter Property="Width" Value="Auto" />
-        <Setter Property="MinWidth" Value="180" />
-        <Setter Property="MaxWidth" Value="260" />
-        <Setter Property="MaxHeight" Value="46" />
-        <Setter Property="Margin" Value="6,10" />
-        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="MinWidth" Value="130" />
+        <Setter Property="Margin" Value="6,8" />
+        <Setter Property="Padding" Value="16,0" />
         <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="6" ShadowDepth="2" Color="#44000000" />
-            </Setter.Value>
-        </Setter>
+        <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="8" />
+    </Style>
 
-        <!-- Setter "template" ändrar buttons standardutseende -->
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}"
-                            CornerRadius="14">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource ButtonHover}" />
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="{StaticResource ButtonPressed}" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <!-- === BUTTON — Outlined (secondary) === -->
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+        <Setter Property="BorderBrush" Value="{StaticResource AccentColor}" />
+        <Setter Property="Foreground" Value="{StaticResource AccentColor}" />
+        <Setter Property="FontFamily" Value="Segoe UI Semibold" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="MinWidth" Value="130" />
+        <Setter Property="Margin" Value="6,8" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="8" />
     </Style>
 
 </ResourceDictionary>

@@ -1,22 +1,24 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
+using Microsoft.EntityFrameworkCore;
+using OPG_Robin_Strandberg_SYSM9.Data;
 using OPG_Robin_Strandberg_SYSM9.Models;
 
 namespace OPG_Robin_Strandberg_SYSM9.Managers
 {
     public class UserManager : INotifyPropertyChanged
     {
+        private readonly CookMasterDbContext _db;
         private User _currentUser;
 
-        public User CurrentUser // ULM getLogged in här
+        public User CurrentUser
         {
-            get { return _currentUser; }
-
+            get => _currentUser;
             private set
             {
                 _currentUser = value;
@@ -28,8 +30,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
 
         public User SearchedUser
         {
-            get { return _searchedUser; }
-
+            get => _searchedUser;
             set
             {
                 _searchedUser = value;
@@ -37,18 +38,10 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
             }
         }
 
-        // Dictionary med alla användares recept
         private readonly Dictionary<User, RecipeManager> _userRecipeManagers = new();
 
-        private List<User> _users;
+        public List<User> Users { get; set; }
 
-        public List<User> Users
-        {
-            get { return _users; }
-            set { _users = value; }
-        }
-
-        // Lista med aktiva admins
         public List<AdminUser> ActiveAdmins { get; private set; } = new();
 
         private bool _isAuthenticated;
@@ -66,17 +59,26 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
             }
         }
 
-        public UserManager()
+        public UserManager(CookMasterDbContext db)
         {
-            Users = new List<User>();
-            CreateDefaultUsers();
+            _db = db;
+
+            // Load all users including their recipes from the database
+            Users = _db.Users.Include(u => u.RecipeList).ToList();
+
+            // Create default users if the database is empty
+            if (!Users.Any())
+                CreateDefaultUsers();
         }
 
-        public void CreateDefaultUsers()
+        private void CreateDefaultUsers()
         {
-            Users.Add(new AdminUser("admin", "password", "Sweden"));
+            var adminUser = new AdminUser("admin", "password", "Sweden");
+            adminUser.SetSecretQuestion("What was the name of your first pet?", "Kiruna");
+            _db.Users.Add(adminUser);
+
             var normalUser = new User("user", "password", "Norway");
-            Users.Add(normalUser);
+            normalUser.SetSecretQuestion("What city were you born in?", "Oslo");
 
             normalUser.RecipeList.Add(new Recipe(
                 "Classic Pancakes",
@@ -95,6 +97,12 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                 normalUser,
                 "Spaghetti, Minced Meat, Tomato Sauce, Garlic, Onion, Herbs"
             ));
+
+            _db.Users.Add(normalUser);
+            _db.SaveChanges();
+
+            // Reload with IDs assigned by the database
+            Users = _db.Users.Include(u => u.RecipeList).ToList();
         }
 
         public bool Login(string username, string password)
@@ -112,7 +120,6 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                         IsAuthenticated = true;
                         GetRecipeManagerForCurrentUser();
 
-                        // Om user type admin och inte finns i lista aktive admins, lägg till
                         if (u is AdminUser admin && !ActiveAdmins.Contains(admin))
                         {
                             ActiveAdmins.Add(admin);
@@ -152,7 +159,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                     return null;
 
                 if (!_userRecipeManagers.ContainsKey(CurrentUser))
-                    _userRecipeManagers[CurrentUser] = new RecipeManager(CurrentUser);
+                    _userRecipeManagers[CurrentUser] = new RecipeManager(CurrentUser, _db);
 
                 return _userRecipeManagers[CurrentUser];
             }
@@ -167,9 +174,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
         public void Logout()
         {
             if (CurrentUser is AdminUser admin && ActiveAdmins.Contains(admin))
-            {
                 ActiveAdmins.Remove(admin);
-            }
 
             CurrentUser = null;
             IsAuthenticated = false;
@@ -180,68 +185,62 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
         {
             try
             {
-                return user.ChangePassword(newPassword);
+                bool result = user.ChangePassword(newPassword);
+                if (result)
+                    _db.SaveChanges();
+                return result;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
                     "An error occurred while changing password:\n" + ex.Message,
-                    "System error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error
-                );
+                    "System error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
 
-        public bool Register(string username, string password, string country)
+        public bool Register(string username, string password, string country, string secretQuestion, string secretAnswer)
         {
             try
             {
                 if (Users.Any(u => u.UserName.Equals(username, StringComparison.OrdinalIgnoreCase)))
                 {
-                    MessageBox.Show(
-                        "Username already taken. Please choose another.",
-                        "Username taken",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning
-                    );
+                    MessageBox.Show("Username already taken. Please choose another.",
+                        "Username taken", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
 
-                // strikt regex-mönster vid registrering och glömt lösenord
                 string pattern = @"^(?=.*\d)(?=.*[!@#$%^&*(),.?""':{}|<>])[A-Za-z\d!@#$%^&*(),.?""':{}|<>]{8,}$";
-
                 if (!Regex.IsMatch(password, pattern))
                 {
                     MessageBox.Show(
                         "Password must be 8 symbols long, contain at least one digit and one special character.",
-                        "Not allowed password",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning
-                    );
+                        "Not allowed password", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
 
-                Users.Add(new User(username, password, country));
+                if (string.IsNullOrWhiteSpace(secretQuestion) || string.IsNullOrWhiteSpace(secretAnswer))
+                {
+                    MessageBox.Show("Please select a secret question and provide an answer.",
+                        "Secret question required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
 
-                MessageBox.Show(
-                    "Registration succeeded!!",
-                    "Done",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
+                var newUser = new User(username, password, country);
+                newUser.SetSecretQuestion(secretQuestion, secretAnswer);
 
+                _db.Users.Add(newUser);
+                _db.SaveChanges();
+                Users.Add(newUser);
+
+                MessageBox.Show("Registration succeeded!!", "Done",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
                 return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "An error occured during registration:\n" + ex.Message,
-                    "System error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error
-                );
+                MessageBox.Show("An error occured during registration:\n" + ex.Message,
+                    "System error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -250,8 +249,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
         {
             try
             {
-                return Users.Any(u =>
-                    u.UserName.Equals(newUserName, StringComparison.OrdinalIgnoreCase));
+                return Users.Any(u => u.UserName.Equals(newUserName, StringComparison.OrdinalIgnoreCase));
             }
             catch (Exception ex)
             {
@@ -268,9 +266,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
                 foreach (User u in Users)
                 {
                     if (u.UserName == username)
-                    {
                         return SearchedUser = u;
-                    }
                 }
             }
             catch (Exception ex)
@@ -283,7 +279,6 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
 
         private string _lastGeneratedCode;
 
-        // Simulerad 2FA med messagebox för 6-siffrig kod
         private bool PerformTwoFactorAuthentication(User user)
         {
             try
@@ -293,14 +288,10 @@ namespace OPG_Robin_Strandberg_SYSM9.Managers
 
                 MessageBox.Show(
                     $"Simulated email sent to {user.UserName}@example.com\nVerification code: {_lastGeneratedCode}",
-                    "Two-Factor Authentication",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
+                    "Two-Factor Authentication", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 var twoFactorWindow = new Views.TwoFactorWindow(_lastGeneratedCode);
                 bool? result = twoFactorWindow.ShowDialog();
-
                 return result == true;
             }
             catch (Exception ex)

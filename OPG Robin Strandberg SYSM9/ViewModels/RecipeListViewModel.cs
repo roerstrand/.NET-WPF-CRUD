@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -110,27 +111,20 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
                     );
                 }
 
+                var predefined = new List<string>
+                {
+                    "Breakfast", "Lunch", "Dinner", "Dessert", "Snack", "Drink",
+                    "Soup", "Salad", "Appetizer", "Side Dish", "Baking", "Vegetarian", "Seafood"
+                };
+
+                var fromRecipes = Recipes
+                    .Select(r => r.Category)
+                    .Where(c => !string.IsNullOrWhiteSpace(c));
+
                 Categories = new ObservableCollection<string>(
-                    // SQL liknande villkor för filtrering
-                    Recipes.Select(r => r.Category)
-                        .Where(c => !string.IsNullOrWhiteSpace(c))
-                        .Distinct()
-                        .OrderBy(c => c)
+                    predefined.Union(fromRecipes).OrderBy(c => c)
                 );
                 OnPropertyChanged(nameof(Categories));
-                if (Categories == null || Categories.Count == 0)
-                {
-                    Categories = new ObservableCollection<string>
-                    {
-                        "Breakfast",
-                        "Lunch",
-                        "Dinner",
-                        "Dessert",
-                        "Snack",
-                        "Drink"
-                    };
-                    OnPropertyChanged(nameof(Categories));
-                }
 
             }
             catch (Exception ex)
@@ -251,7 +245,19 @@ namespace OPG_Robin_Strandberg_SYSM9.ViewModels
         private void SignOut()
         {
             _userManager.Logout();
+
+            WindowState previousState = WindowState.Normal;
+            foreach (Window w in Application.Current.Windows)
+            {
+                if (w.DataContext == this)
+                {
+                    previousState = w.WindowState;
+                    break;
+                }
+            }
+
             var mainWindow = new MainWindow();
+            mainWindow.WindowState = previousState;
             mainWindow.Show();
             CloseCurrentWindow();
         }

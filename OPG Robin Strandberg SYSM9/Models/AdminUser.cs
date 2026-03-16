@@ -1,21 +1,18 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using OPG_Robin_Strandberg_SYSM9.Managers;
 
 namespace OPG_Robin_Strandberg_SYSM9.Models
 {
     public class AdminUser : User
     {
-        private readonly RecipeManager _recipeManager;
-
         public override bool IsAdmin => true;
 
-        public AdminUser(string username, string password, string country, RecipeManager recipeManager = null)
-            : base(username, password, country)
-        {
-            _recipeManager = recipeManager ?? new RecipeManager(this);
-        }
+        // Required by EF Core (TPH)
+        protected AdminUser() { }
+
+        public AdminUser(string username, string password, string country)
+            : base(username, password, country) { }
 
         public void RemoveAnyRecipe(Recipe recipe)
         {
@@ -28,24 +25,22 @@ namespace OPG_Robin_Strandberg_SYSM9.Models
                     return;
                 }
 
-                // ta bort från admins egen RecipeManager
-                _recipeManager.RecipeList.Remove(recipe);
+                // Remove from database
+                App.DbContext.Recipes.Remove(recipe);
+                App.DbContext.SaveChanges();
 
-                // ta bort från alla användares RecipeList
+                // Update in-memory RecipeList for the affected user
                 foreach (var user in App.UserManager.Users)
                 {
-                    var recipeToRemove = user.RecipeList.FirstOrDefault(r =>
-                        r.Title == recipe.Title &&
-                        r.CreatedBy == recipe.CreatedBy);
-
-                    if (recipeToRemove != null)
+                    var r = user.RecipeList.FirstOrDefault(x => x.Id == recipe.Id);
+                    if (r != null)
                     {
-                        user.RecipeList.Remove(recipeToRemove);
+                        user.RecipeList.Remove(r);
+                        break;
                     }
                 }
 
                 OnPropertyChanged(nameof(RecipeList));
-
                 MessageBox.Show($"Recipe \"{recipe.Title}\" was removed by administrator.",
                     "Removed", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -58,7 +53,12 @@ namespace OPG_Robin_Strandberg_SYSM9.Models
 
         public ObservableCollection<Recipe> ViewAllRecipes()
         {
-            return _recipeManager.GetAllRecipes();
+            var all = new ObservableCollection<Recipe>();
+            foreach (var user in App.UserManager.Users)
+                foreach (var recipe in user.RecipeList)
+                    if (!all.Contains(recipe))
+                        all.Add(recipe);
+            return all;
         }
     }
 }

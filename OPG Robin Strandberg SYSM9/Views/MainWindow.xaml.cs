@@ -27,7 +27,7 @@ namespace OPG_Robin_Strandberg_SYSM9.Views
             InitializeComponent();
             _viewModel = new MainWindowViewModel();
             DataContext = _viewModel;
-
+            _viewModel.ClearPassword = () => MainWindowPasswordBox.Clear();
         }
 
         public void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)

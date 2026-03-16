@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
+using OPG_Robin_Strandberg_SYSM9.Data;
 using OPG_Robin_Strandberg_SYSM9.Managers;
 using OPG_Robin_Strandberg_SYSM9.Views;
 
@@ -7,15 +8,16 @@ namespace OPG_Robin_Strandberg_SYSM9
 {
     public partial class App : Application
     {
+        public static CookMasterDbContext DbContext { get; private set; }
         public static UserManager UserManager { get; private set; }
 
-        // Samtliga resurser laddas i application-metoden OnStartUp efter färdkompilerad app-klass ist
-        // globala resurser satta i app.xaml. Men körs innan något fönster har öppnats.
+        // All resources are loaded in the OnStartup method after the app class is compiled,
+        // using global resources defined in app.xaml. Runs before any window is opened.
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            // Application klass base metod OnSartUp laddar globalt med absolut filväg
+            // Load global theme resource with absolute pack URI
             var theme = new ResourceDictionary
             {
                 Source = new Uri(
@@ -25,22 +27,26 @@ namespace OPG_Robin_Strandberg_SYSM9
 
             Application.Current.Resources.MergedDictionaries.Add(theme);
 
-            UserManager ??= new UserManager();
+            // Initiera databas — skapar cookmaster.db i %LocalAppData%\CookMaster om den inte finns
+            DbContext = new CookMasterDbContext();
+            DbContext.Database.EnsureCreated();
+
+            UserManager ??= new UserManager(DbContext);
 
             MainWindow = new Views.MainWindow();
             MainWindow.Closed += OnWindowClosed;
             MainWindow.Show();
 
             DispatcherUnhandledException +=
-                App_DispatcherUnhandledException; // Global felhanterare av fel i UI-tråden
+                App_DispatcherUnhandledException; // Global handler for exceptions on the UI thread
             AppDomain.CurrentDomain.UnhandledException +=
-                CurrentDomain_UnhandledException; // felhanterade för bakgrundstrådar i applikationen
+                CurrentDomain_UnhandledException; // Handler for exceptions on background threads
         }
 
-        // Om användaren råkar stänga alla fönster i appen, skicka förfrågan om de vill öppna appen igen (appens fortsätta köra ändå enligt ShutDownMode)
+        // If the user closes all windows, prompt them to reopen the app (app keeps running per ShutdownMode)
         private void OnWindowClosed(object sender, EventArgs e)
         {
-            // Dispatcher klass kontrollerar ööppna fönster efter UI tråd uppdaterat lista med fönster
+            // Dispatcher checks open windows after the UI thread has updated the window list
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (Current.Windows.Count == 0)
@@ -65,6 +71,13 @@ namespace OPG_Robin_Strandberg_SYSM9
             }), DispatcherPriority.Background);
         }
 
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            DbContext?.SaveChanges();
+            DbContext?.Dispose();
+            base.OnExit(e);
+        }
 
         public void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {

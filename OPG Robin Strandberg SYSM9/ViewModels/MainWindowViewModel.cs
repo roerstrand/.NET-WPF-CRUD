@@ -57,6 +57,8 @@ namespace OPG_Robin_Strandberg_SYSM9
         public ICommand ShowRegisterCommand { get; }
         public ICommand ShowForgotPasswordCommand { get; }
 
+        public Action ClearPassword { get; set; }
+
         public ICommand LoginCommand { get; }
 
         public MainWindowViewModel()
@@ -108,25 +110,31 @@ namespace OPG_Robin_Strandberg_SYSM9
             {
                 if (_userManager.Login(UserNameInput, PasswordInput))
                 {
-                    var recipeList = new RecipeListWindow(_userManager.GetRecipeManagerForCurrentUser());
-                    recipeList.Show();
-
                     _userManager.IsAuthenticated = true;
 
-                    // Går igenom alla öppna fönster i applikation och stänger det fönster med datacontext satt till denna specifika viewmodel
+                    WindowState previousState = WindowState.Normal;
+                    MainWindow mainWin = null;
                     foreach (Window window in Application.Current.Windows)
                     {
-                        if (window is MainWindow)
+                        if (window is MainWindow mw)
                         {
-                            window.Close();
+                            previousState = mw.WindowState;
+                            mainWin = mw;
                             break;
                         }
                     }
+
+                    var recipeList = new RecipeListWindow(_userManager.GetRecipeManagerForCurrentUser());
+                    recipeList.WindowState = previousState;
+                    recipeList.Show();
+
+                    mainWin?.Close();
                 }
                 else
                 {
                     UserNameInput = string.Empty;
                     PasswordInput = string.Empty;
+                    ClearPassword?.Invoke();
                 }
             }
             catch (Exception ex)
