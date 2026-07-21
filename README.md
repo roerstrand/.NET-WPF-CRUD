@@ -4,7 +4,7 @@ A desktop CRUD application built with C# and WPF demonstrating user management f
 
 ## Demo
 
-YouTube: https://youtube.com/shorts/lGhUaNGcxeU
+YouTube: https://youtube.com/shorts/s-zSkuEjrJ0
 
 ## Features
 
